@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Kiraz Elektronik | İş Takip Paneli</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f3f4f6;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 800px;
+      margin: 40px auto;
+      background: white;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    }
+    h1 {
+      text-align: center;
+      color: #7c3aed;
+    }
+    h2 {
+      margin-bottom: 1rem;
+      color: #4b5563;
+    }
+    input, textarea, button {
+      width: 100%;
+      padding: 0.7rem;
+      margin-bottom: 1rem;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      font-size: 1rem;
+    }
+    button {
+      background-color: #7c3aed;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #6d28d9;
+    }
+    .job-card {
+      background: #f9fafb;
+      border-left: 4px solid #7c3aed;
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+    }
+    .job-card h3 {
+      margin: 0 0 0.5rem;
+      color: #374151;
+    }
+    .job-card p {
+      margin: 0.25rem 0;
+      color: #6b7280;
+    }
+    .delete-btn {
+      margin-top: 0.5rem;
+      background: #ef4444;
+      border: none;
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .delete-btn:hover {
+      background: #dc2626;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Kiraz Elektronik</h1>
+    <h2>İş Takip Paneli</h2>
+
+    <form id="job-form">
+      <input type="text" id="title" placeholder="İş Başlığı" required />
+      <textarea id="description" placeholder="Açıklama" required></textarea>
+      <input type="date" id="date" required />
+      <button type="submit">İşi Kaydet</button>
+    </form>
+
+    <div id="job-list"></div>
+  </div>
+
+  <script>
+    const form = document.getElementById('job-form');
+    const jobList = document.getElementById('job-list');
+    let jobs = [];
+
+    // Sayfa yüklendiğinde localStorage'dan verileri al
+    window.addEventListener('DOMContentLoaded', () => {
+      const stored = localStorage.getItem('kirazJobs');
+      if (stored) {
+        jobs = JSON.parse(stored);
+        renderJobs();
+      }
+    });
+
+    // Yeni iş ekle
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const title = document.getElementById('title').value.trim();
+      const description = document.getElementById('description').value.trim();
+      const date = document.getElementById('date').value;
+
+      if (!title || !description || !date) return;
+
+      const job = { id: Date.now(), title, description, date };
+      jobs.push(job);
+      saveJobs();
+      renderJobs();
+      form.reset();
+    });
+
+    // İş sil
+    function deleteJob(id) {
+      jobs = jobs.filter(j => j.id !== id);
+      saveJobs();
+      renderJobs();
+    }
+
+    // localStorage'a kaydet
+    function saveJobs() {
+      localStorage.setItem('kirazJobs', JSON.stringify(jobs));
+    }
+
+    // Arayüzü yenile
+    function renderJobs() {
+      jobList.innerHTML = '';
+      jobs.forEach(job => {
+        const div = document.createElement('div');
+        div.className = 'job-card';
+        div.innerHTML = `
+          <h3>${job.title}</h3>
+          <p>${job.description}</p>
+          <p><small>Tarih: ${job.date}</small></p>
+          <button class="delete-btn" onclick="deleteJob(${job.id})">Sil</button>
+        `;
+        jobList.appendChild(div);
+      });
+    }
+  </script>
+</body>
+</html>
